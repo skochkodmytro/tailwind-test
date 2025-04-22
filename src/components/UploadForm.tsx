@@ -55,11 +55,15 @@ const UploadForm = ({ onNext }: UploadFormProps) => {
         formData.append("audio", audio);
       }
 
-      await axios.post("http://192.168.0.151:8000/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post(
+        "https://nest-test-0jj7.onrender.com/api/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       onNext();
     } catch (err: any) {
