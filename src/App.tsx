@@ -1,24 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+
+import { InstructionList, UploadForm } from "./components";
+
+enum StepsEnum {
+  INSTRUCTION,
+  UPLOAD_FORM,
+  SUCCESS,
+}
 
 function App() {
+  const [step, setStep] = useState(StepsEnum.INSTRUCTION);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-2xl space-y-6 text-center">
+      {step === StepsEnum.INSTRUCTION && (
+        <InstructionList onNext={() => setStep(StepsEnum.UPLOAD_FORM)} />
+      )}
+
+      {step === StepsEnum.UPLOAD_FORM && (
+        <UploadForm onNext={() => setStep(StepsEnum.SUCCESS)} />
+      )}
+
+      {step === StepsEnum.SUCCESS && (
+        <>
+          <h2 className="text-2xl font-bold text-green-600">Success!</h2>
+          <p className="text-gray-700">
+            Your photos have been uploaded to Google Drive.
+          </p>
+        </>
+      )}
     </div>
   );
 }
