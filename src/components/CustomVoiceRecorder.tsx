@@ -12,12 +12,6 @@ const CustomVoiceRecorder = ({ onAudioRecorded }: CustomVoiceRecorderProps) => {
 
   const startRecording = async () => {
     try {
-      // await (window.navigator.permissions as any)
-      //   .query({ name: "microphone" })
-      //   .then(function (result: PermissionStatus) {
-      //     console.log(result, "----result");
-      //     // setPermissionState(result.state);
-      //   });
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
       mediaRecorderRef.current = new MediaRecorder(stream);
@@ -34,8 +28,8 @@ const CustomVoiceRecorder = ({ onAudioRecorded }: CustomVoiceRecorderProps) => {
           type: "audio/webm",
         });
 
-        const file = new File([audioBlob], `voice-${Date.now()}.mp3`, {
-          type: "audio/mp3",
+        const file = new File([audioBlob], `voice-${Date.now()}.webm`, {
+          type: "audio/webm",
         });
 
         const url = URL.createObjectURL(audioBlob);
