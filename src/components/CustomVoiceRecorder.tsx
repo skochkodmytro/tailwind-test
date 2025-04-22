@@ -7,6 +7,7 @@ type CustomVoiceRecorderProps = {
 const CustomVoiceRecorder = ({ onAudioRecorded }: CustomVoiceRecorderProps) => {
   const [recording, setRecording] = useState(false);
   const [audioURL, setAudioURL] = useState<string | null>(null);
+  const [mimeType, setMimeType] = useState<string>("audio/webm");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -14,6 +15,19 @@ const CustomVoiceRecorder = ({ onAudioRecorded }: CustomVoiceRecorderProps) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
+      let preferredMimeType = "";
+      if (MediaRecorder.isTypeSupported("audio/mp4")) {
+        preferredMimeType = "audio/mp4";
+      } else if (MediaRecorder.isTypeSupported("audio/aac")) {
+        preferredMimeType = "audio/aac";
+      } else if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+        preferredMimeType = "audio/webm;codecs=opus";
+      } else {
+        alert("No supported audio format available.");
+        return;
+      }
+
+      setMimeType(preferredMimeType);
       mediaRecorderRef.current = new MediaRecorder(stream);
       audioChunksRef.current = [];
 
@@ -25,12 +39,22 @@ const CustomVoiceRecorder = ({ onAudioRecorded }: CustomVoiceRecorderProps) => {
 
       mediaRecorderRef.current.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
+          type: preferredMimeType,
         });
 
-        const file = new File([audioBlob], `voice-${Date.now()}.webm`, {
-          type: "audio/webm",
-        });
+        const fileExtension = preferredMimeType.includes("mp4")
+          ? "mp4"
+          : preferredMimeType.includes("aac")
+          ? "aac"
+          : "webm";
+
+        const file = new File(
+          [audioBlob],
+          `voice-${Date.now()}.${fileExtension}`,
+          {
+            type: preferredMimeType,
+          }
+        );
 
         const url = URL.createObjectURL(audioBlob);
         setAudioURL(url);
@@ -74,7 +98,12 @@ const CustomVoiceRecorder = ({ onAudioRecorded }: CustomVoiceRecorderProps) => {
 
       {audioURL && (
         <div className="bg-gray-100 rounded-xl pv-2 pr-4 flex items-center justify-between">
-          <audio src={audioURL} controls className="w-full mr-4" />
+          <audio src={audioURL} controls className="w-full mr-4">
+            <audio controls className="w-full mr-4">
+              <source src={audioURL} type={mimeType} />
+              Your browser does not support the audio element.
+            </audio>
+          </audio>
           <button
             onClick={deleteRecording}
             className="text-red-500 hover:text-red-700 text-sm"
